@@ -82,18 +82,12 @@
 		$sql = "SELECT * from login WHERE id_login = '$idutilizador'";
 		if ($resultado = $conexao->query($sql)) {	
 			while ($row = $resultado->fetch_assoc()) {
-				$serial_boot = $row["serial_boot"];
-				$serial_gpu = $row["serial_gpu"];
-				$serial_cpu = $row["serial_cpu"];
-				$serial_memory = $row["serial_memory"]; 
-				$serial_disk = $row["serial_disk"]; 
-				$serial_network = $row["serial_network"];
-				$serial_system = $row["serial_system"];
+				$serial_global = $row["serial_global"];
 			}
 		$resultado->free();
 		}	
 			
-		$sql = "SELECT * from boot_info WHERE serial_boot LIKE '$serial_boot'";
+		$sql = "SELECT * from boot_info WHERE serial_boot LIKE '$serial_global'";
 		if ($resultado = $conexao->query($sql)) {	
 			while ($row = $resultado->fetch_assoc()) {
 				$day = $row["day"];
@@ -106,7 +100,7 @@
 		$resultado->free();
 		}
 		
-		$sql = "SELECT * from system_info WHERE serial_system LIKE '$serial_system'";
+		$sql = "SELECT * from system_info WHERE serial_system LIKE '$serial_global'";
 		if ($resultado = $conexao->query($sql)) {
 			while ($row = $resultado->fetch_assoc()) {
 				$system = $row["system"];
@@ -165,7 +159,7 @@
 			   <table class="table table-hover table-sm noborderattop">
 			    <tbody>
 			<?php
-		$sql = "SELECT * from cpu_info WHERE serial_cpu LIKE '$serial_cpu'";
+		$sql = "SELECT * from cpu_info WHERE serial_cpu LIKE '$serial_global'";
 		if ($resultado = $conexao->query($sql)) {	
 			while ($row = $resultado->fetch_assoc()) {
 				$cpu_name = $row["cpu_name"];
@@ -241,7 +235,7 @@
 			   </thead>
 			   <tbody>
 			 <?php
-			$sql = "SELECT * from gpu_info WHERE serial_gpu LIKE '$serial_gpu'";
+			$sql = "SELECT * from gpu_info WHERE serial_gpu LIKE '$serial_global'";
 		if ($resultado = $conexao->query($sql)) {	
 			$m=0;
 			while ($row = mysqli_fetch_array($resultado)) {
@@ -303,7 +297,7 @@
 			   </thead>
 			   <tbody>
 			 <?php
-			$sql = "SELECT * from disk_info";
+			$sql = "SELECT * from disk_info WHERE serial_disk LIKE '$serial_global'";
 		if ($resultado = $conexao->query($sql)) {	
 			$k=0;
 			while ($row = mysqli_fetch_array($resultado)) {
@@ -343,7 +337,7 @@
 			   <table class="table table-hover table-sm noborderattop">
 			    <tbody>
 			<?php
-		$sql = "SELECT * from memory_info WHERE serial_memory LIKE '$serial_memory'";
+		$sql = "SELECT * from memory_info WHERE serial_memory LIKE '$serial_global'";
 		if ($resultado = $conexao->query($sql)) {	
 			while ($row = $resultado->fetch_assoc()) {
 				$mem_total = $row["mem_total"];
@@ -388,7 +382,7 @@
 			   <table class="table table-hover table-sm noborderattop">
 			    <tbody>
 			<?php
-		$sql = "SELECT * from network_info WHERE serial_network LIKE '$serial_network'";
+		$sql = "SELECT * from network_info WHERE serial_network LIKE '$serial_global'";
 		if ($resultado = $conexao->query($sql)) {	
 			while ($row = $resultado->fetch_assoc()) {
 				$ip_address = $row["ip_address"];

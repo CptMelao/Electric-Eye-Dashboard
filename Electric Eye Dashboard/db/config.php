@@ -1,7 +1,7 @@
 <?php
-    $servidor = 'localhost';
-    $utilizador = 'root';
-    $password = '';
+    $servidor = 'remotemysql.com';
+    $utilizador = 'akG9Dvp8mp';
+    $password = 'daQAeSuxgJ';
     $basededados = 'akG9Dvp8mp';
 
     $conexao = mysqli_connect($servidor, $utilizador, $password, $basededados);

@@ -29,7 +29,6 @@ mydb = mysql.connector.connect(host='remotemysql.com',
 
 mycursor = mydb.cursor()
 
-motherboard_id = subprocess.check_output('wmic csproduct get uuid').decode().split('\n')[1].strip()
 
 # Login Info
 min = string.ascii_lowercase
@@ -51,6 +50,10 @@ f.write("\n")
 f.write("Password: " + pw)
 f.write("\n")
 f.write("Serial: " + motherboard_id)
+
+login_sql = "INSERT INTO `login` (`serial_global`, `username`, `password`, `type`) VALUES (%s, %s, %s, 'user')"
+login_val = (motherboard_id, username, pw,)
+mycursor.execute(login_sql, login_val)
 
 
 # System Info
@@ -109,20 +112,13 @@ disk_io = psutil.disk_io_counters()
 for partition in partitions:
     motherboard_id = subprocess.check_output('wmic csproduct get uuid').decode().split('\n')[1].strip()
     partition_usage = psutil.disk_usage(partition.mountpoint)
-    part = str(partition.mountpoint).split('\:')
-    i = str(1)
-    for i in part:
-        i += str(1)
-
-        mb_id_disk_net_gpu = subprocess.check_output('wmic csproduct get uuid').decode().split('\n')[1].strip() + '#' + str(i)
-
-        disk_1_sql = "INSERT INTO `disk_info` (`serial_disk`, `mountpoint`, `file_type`," \
-                     " `total_size`, `total_used`, `total_free`, `used_percentage`)" \
-                     "VALUES (%s, %s, %s, %s, %s, %s, %s)"
-        disk_1_val = (mb_id_disk_net_gpu, partition.mountpoint, partition.fstype,
-                      convert_bytes(partition_usage.total), convert_bytes(partition_usage.used),
-                      convert_bytes(partition_usage.free), partition_usage.percent)
-        mycursor.execute(disk_1_sql, disk_1_val)
+    disk_1_sql = "INSERT INTO `disk_info` (`serial_disk`, `mountpoint`, `file_type`," \
+                " `total_size`, `total_used`, `total_free`, `used_percentage`)" \
+                 "VALUES (%s, %s, %s, %s, %s, %s, %s)"
+    disk_1_val = (motherboard_id, partition.mountpoint, partition.fstype,
+                  convert_bytes(partition_usage.total), convert_bytes(partition_usage.used),
+                  convert_bytes(partition_usage.free), partition_usage.percent)
+    mycursor.execute(disk_1_sql, disk_1_val)
 
 
 # Network Info
@@ -133,38 +129,24 @@ for iface in netifaces.interfaces():
         for ip_interfaces in iface_details[netifaces.AF_INET]:
             for key, ip_add in ip_interfaces.items():
                 if key == 'addr' and ip_add != '127.0.0.1':
-                    k = str(iface).split('\n')
-                    i = str(1)
-                    for i in k:
-                        i += str(1)
-
-                        mb_id_disk_net_gpu = subprocess.check_output('wmic csproduct get uuid').decode().split('\n')[1].strip() + '#' + str(i)
-
-                        net_sql = "INSERT INTO `network_info` (`serial_network`, `if_name`," \
-                                  " `ip_address`, `mac_address`, `total_sent`, `total_received`)" \
-                                  "VALUES (%s, %s, %s, %s, %s, %s)"
-                        net_val = (mb_id_disk_net_gpu, key, ip_add, gma(),
-                                   convert_bytes(net_io.bytes_sent), convert_bytes(net_io.bytes_recv))
-                        mycursor.execute(net_sql, net_val)
+                    net_sql = "INSERT INTO `network_info` (`serial_network`, `if_name`," \
+                              " `ip_address`, `mac_address`, `total_sent`, `total_received`)" \
+                              "VALUES (%s, %s, %s, %s, %s, %s)"
+                    net_val = (motherboard_id, key, ip_add, gma(),
+                               convert_bytes(net_io.bytes_sent), convert_bytes(net_io.bytes_recv))
+                    mycursor.execute(net_sql, net_val)
 
 
 # GPU Info
 gpus = GPUtil.getGPUs()
 for gpu in gpus:
-    gid = str(gpu.name).split('\n')
-    i = str(1)
-    for i in gid:
-        i += str(1)
-
-        mb_id_disk_net_gpu = subprocess.check_output('wmic csproduct get uuid').decode().split('\n')[1].strip() + '#' + str(i)
-
-        gpu_sql = "INSERT INTO `gpu_info` (`serial_gpu`, `gpu_id`, `gpu_name`," \
-                  " `gpu_load`, `gpu_free_memory`,`gpu_used_memory`, " \
-                  "`gpu_total_memory`, `gpu_temperature`) " \
-                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-        gpu_val = (mb_id_disk_net_gpu, gpu.id, gpu.name, gpu.load,
-                   gpu.memoryFree, gpu.memoryUsed, gpu.memoryTotal, gpu.temperature)
-        mycursor.execute(gpu_sql, gpu_val)
+    gpu_sql = "INSERT INTO `gpu_info` (`serial_gpu`, `gpu_id`, `gpu_name`," \
+              " `gpu_load`, `gpu_free_memory`,`gpu_used_memory`, " \
+              "`gpu_total_memory`, `gpu_temperature`) " \
+              "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+    gpu_val = (motherboard_id, gpu.id, gpu.name, gpu.load,
+               gpu.memoryFree, gpu.memoryUsed, gpu.memoryTotal, gpu.temperature)
+    mycursor.execute(gpu_sql, gpu_val)
 
 
 mydb.commit()
